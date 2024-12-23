@@ -1,6 +1,6 @@
 require('dotenv').config()
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const port = process.env.PORT || 7000
 const app = express();
@@ -28,6 +28,7 @@ async function run() {
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     const tutorialsColloction =  client.db('LanguagePortal').collection('alltutorials');
+    const bookedColloction =  client.db('LanguagePortal').collection('allbookings');
 
     // create tutorials
     app.post('/add-tutorials',async(req,res) => {
@@ -41,11 +42,24 @@ async function run() {
       const result = await tutorialsColloction.find(tutors).toArray();
       res.send(result);
     })
+    // get single tutorilas by id
+    app.get('/single-tutorials/:id',async(req,res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await tutorialsColloction.findOne(query)
+      res.send(result);
+    })
     // getting tutorials by email
     app.get('/myTutorials',async(req,res)=>{
       const email = req.query.email;
       const query = {email: email};
       const result =await tutorialsColloction.find(query).toArray();
+      res.send(result)
+    })
+    // adding booking
+    app.post('/add-booking',async(req,res) => {
+      const booking = req.body;
+      const result = await bookedColloction.insertOne(booking);
       res.send(result)
     })
   } finally {
