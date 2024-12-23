@@ -35,8 +35,14 @@ async function run() {
       const result = await tutorialsColloction.insertOne(tutorials)
       res.send(result)
     })
-    // getting tutorials by 
-    app.get('/getTutorials',async(req,res)=>{
+    // get all tutuors
+    app.get('/get-all-tutors',async(req,res) => {
+      const tutors = req.body;
+      const result = await tutorialsColloction.find(tutors).toArray();
+      res.send(result);
+    })
+    // getting tutorials by email
+    app.get('/myTutorials',async(req,res)=>{
       const email = req.query.email;
       const query = {email: email};
       const result =await tutorialsColloction.find(query).toArray();
