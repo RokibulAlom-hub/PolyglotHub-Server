@@ -29,6 +29,7 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     const tutorialsColloction =  client.db('LanguagePortal').collection('alltutorials');
     const bookedColloction =  client.db('LanguagePortal').collection('allbookings');
+    const languageColloction =  client.db('LanguagePortal').collection('categorys');
 
     // create tutorials
     app.post('/add-tutorials',async(req,res) => {
@@ -38,8 +39,11 @@ async function run() {
     })
     // get all tutuors
     app.get('/get-all-tutors',async(req,res) => {
-      const tutors = req.body;
-      const result = await tutorialsColloction.find(tutors).toArray();
+      const language = req.query.language;
+      let query ={};
+      if(language) query.language = language
+      // const tutors = req.body;
+      const result = await tutorialsColloction.find(query).toArray();
       res.send(result);
     })
     // get single tutorilas by id
@@ -68,6 +72,12 @@ async function run() {
       const query = {loggedInEmail: email};
       const result =await bookedColloction.find(query).toArray();
       res.send(result)
+    })
+    // get category
+    app.get('/get-language',async(req,res) => {
+      const language = req.body;
+      const result = await languageColloction.find(language).toArray();
+      res.send(result);
     })
   } finally {
     // Ensures that the client will close when you finish/error
