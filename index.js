@@ -62,6 +62,13 @@ async function run() {
       const result = await bookedColloction.insertOne(booking);
       res.send(result)
     })
+    // get the bookinglist by id
+    app.get('/my-bookings',async(req,res) => {
+      const email = req.query.email;
+      const query = {loggedInEmail: email};
+      const result =await bookedColloction.find(query).toArray();
+      res.send(result)
+    })
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
