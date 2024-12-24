@@ -53,6 +53,18 @@ async function run() {
       const result = await tutorialsColloction.findOne(query)
       res.send(result);
     })
+    // update single id 
+    app.patch('/update/tutorials/:id',async(req,res) => {
+      const id = req.params.id;
+      const tutorData = req.body;
+      const updateData = {
+        $set:tutorData,
+      }
+      const query = {_id: new ObjectId(id)};
+      const options = {upsert:true}
+      const result = await tutorialsColloction.updateOne(query,updateData,options)
+      res.send(result);
+    })
     // delete tutuorials by id
     app.delete('/tutorials-delete/:id',async(req,res) => {
       const id = req.params.id;
