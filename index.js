@@ -50,6 +50,14 @@ async function run() {
       })
       .send({success: true})
     })
+    // jwt token delete
+    app.post('/jwt-logout',async(req,res) => {
+      res.clearCookie('token',{
+        httpOnly:true,
+        secure:false,
+      })
+      .send({success: true})
+    })
     // create tutorials
     app.post('/add-tutorials',async(req,res) => {
       const tutorials = req.body;
