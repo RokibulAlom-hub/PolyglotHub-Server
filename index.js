@@ -2,12 +2,20 @@ require('dotenv').config()
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 const port = process.env.PORT || 7000
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+  ],
+  credentials:true
+}));
 app.use(express.json());
-
+app.use(cookieParser());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jds8f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -30,7 +38,18 @@ async function run() {
     const tutorialsColloction =  client.db('LanguagePortal').collection('alltutorials');
     const bookedColloction =  client.db('LanguagePortal').collection('allbookings');
     const languageColloction =  client.db('LanguagePortal').collection('categorys');
-
+    //  generate jwt token
+    app.post('/jwt', async(req,res) => {
+      const user = req.body;
+      const jwttoken = jwt.sign(user, process.env.Access_Token_Secret,{
+        expiresIn: "5h"
+      })
+      res.cookie('token',jwttoken,{
+        httpOnly:true,
+        secure:false,
+      })
+      .send({success: true})
+    })
     // create tutorials
     app.post('/add-tutorials',async(req,res) => {
       const tutorials = req.body;
@@ -39,9 +58,18 @@ async function run() {
     })
     // get all tutuors
     app.get('/get-all-tutors',async(req,res) => {
+      const search = req.query.search;
       const language = req.query.language;
+      console.log(search,language);
+      
       let query ={};
       if(language) query.language = language
+      if (search) {
+        query.language = {
+            $regex: search, // Use the search term in the regex
+            $options: 'i'   // Case-insensitive search
+        };
+      }
       // const tutors = req.body;
       const result = await tutorialsColloction.find(query).toArray();
       res.send(result);
@@ -102,10 +130,12 @@ async function run() {
     app.patch('/update/review/:id',async(req,res) => {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
+      const querytwo = {tutorialsId: id}
       const updateReveiw = {
         $inc:{review:1}
       }
       const result = await tutorialsColloction.updateOne(query,updateReveiw)
+      const resultone = await bookedColloction.updateOne(querytwo,updateReveiw)
       res.send(result)
     })
   } finally {
