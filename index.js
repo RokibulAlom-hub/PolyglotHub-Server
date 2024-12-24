@@ -98,6 +98,16 @@ async function run() {
       const result = await languageColloction.find(language).toArray();
       res.send(result);
     })
+    // update reveiew by id
+    app.patch('/update/review/:id',async(req,res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const updateReveiw = {
+        $inc:{review:1}
+      }
+      const result = await tutorialsColloction.updateOne(query,updateReveiw)
+      res.send(result)
+    })
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
