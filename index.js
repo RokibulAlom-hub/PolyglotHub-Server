@@ -53,6 +53,13 @@ async function run() {
       const result = await tutorialsColloction.findOne(query)
       res.send(result);
     })
+    // delete tutuorials by id
+    app.delete('/tutorials-delete/:id',async(req,res) => {
+      const id = req.params.id;
+      const query ={_id : new ObjectId(id)}
+      const result = await tutorialsColloction.deleteOne(query)
+      res.send(result)
+    })
     // getting tutorials by email
     app.get('/myTutorials',async(req,res)=>{
       const email = req.query.email;
