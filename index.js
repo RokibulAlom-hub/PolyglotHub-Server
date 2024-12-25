@@ -9,29 +9,40 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://polyglothub-54ecc.web.app",
+      "https://polyglothub-54ecc.firebaseapp.com",
+    ],
     credentials: true,
   })
 );
 app.use(express.json());
 app.use(cookieParser());
 // middelware for verify token
-const verifyToken = (req,res,next) => {
+const verifyToken = (req, res, next) => {
   const token = req.cookies?.token;
-  if(!token){
-    return res.status(401).send({messeage:'Unauthorized access'})
+  if (!token) {
+    return res.status(401).send({ messeage: "Unauthorized access" });
   }
-  // verify token 
-  jwt.verify(token,process.env.Access_Token_Secret,(err,decoded) => {
+  // verify token
+  jwt.verify(token, process.env.Access_Token_Secret, (err, decoded) => {
     if (err) {
-      return res.status(401).send({messeage:'Unauthorized access'})
+      return res.status(401).send({ messeage: "Unauthorized access" });
     }
-    req.trueUser=decoded;
+    req.trueUser = decoded;
     // console.log(decoded);
-    
-    next()
-  })
-}
+
+    next();
+  });
+};
+// cookie option
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+};
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jds8f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -67,21 +78,11 @@ async function run() {
       const jwttoken = jwt.sign(user, process.env.Access_Token_Secret, {
         expiresIn: "5h",
       });
-      res
-        .cookie("token", jwttoken, {
-          httpOnly: true,
-          secure: false,
-        })
-        .send({ success: true });
+      res.cookie("token", jwttoken, cookieOptions).send({ success: true });
     });
     // jwt token delete
     app.post("/jwt-logout", async (req, res) => {
-      res
-        .clearCookie("token", {
-          httpOnly: true,
-          secure: false,
-        })
-        .send({ success: true });
+      res.clearCookie("token", cookieOptions).send({ success: true });
     });
     // create tutorials
     app.post("/add-tutorials", async (req, res) => {
@@ -93,7 +94,7 @@ async function run() {
     app.get("/get-all-tutors", async (req, res) => {
       const search = req.query.search;
       const language = req.query.language;
-      console.log(search, language);
+      // console.log(search, language);
 
       let query = {};
       if (language) query.language = language;
@@ -138,10 +139,10 @@ async function run() {
       res.send(result);
     });
     // getting tutorials by email
-    app.get("/myTutorials",verifyToken, async (req, res) => {
+    app.get("/myTutorials", verifyToken, async (req, res) => {
       const email = req.query.email;
       if (req.trueUser?.email !== req.query?.email) {
-        return res.status(403).send({messeage:'forbidden'})
+        return res.status(403).send({ messeage: "forbidden" });
       }
       const query = { email: email };
       const result = await tutorialsColloction.find(query).toArray();
