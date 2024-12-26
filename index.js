@@ -159,14 +159,11 @@ async function run() {
     // get the bookinglist by id
     app.get("/my-bookings",verifyToken, async (req, res) => {
       const email = req.query.email;
-      console.log(email);
       
-      const query = { loggedInEmail: email };
-      console.log(query);
-      
-      if (req.trueUser?.email !== req.query?.loggedInEmail) {
+      if (req.trueUser?.email !== req.query?.email) {
         return res.status(403).send({ messeage: "forbidden" });
       }
+      const query = { loggedInEmail: email };
       const result = await bookedColloction.find(query).toArray();
       res.send(result);
     });
