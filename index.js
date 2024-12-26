@@ -139,11 +139,11 @@ async function run() {
       res.send(result);
     });
     // getting tutorials by email
-    app.get("/myTutorials", verifyToken, async (req, res) => {
+    app.get("/myTutorials", async (req, res) => {
       const email = req.query.email;
-      if (req.trueUser?.email !== req.query?.email) {
-        return res.status(403).send({ messeage: "forbidden" });
-      }
+      // if (req.trueUser?.email !== req.query?.email) {
+      //   return res.status(403).send({ messeage: "forbidden" });
+      // }
       const query = { email: email };
       const result = await tutorialsColloction.find(query).toArray();
       res.send(result);
