@@ -32,7 +32,7 @@ const verifyToken = (req, res, next) => {
       return res.status(401).send({ messeage: "Unauthorized access" });
     }
     req.trueUser = decoded;
-    // console.log(decoded);
+    //  (decoded);
 
     next();
   });
@@ -60,7 +60,7 @@ async function run() {
     // await client.connect();
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
-    console.log(
+     (
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
     const tutorialsColloction = client
@@ -94,7 +94,7 @@ async function run() {
     app.get("/get-all-tutors", async (req, res) => {
       const search = req.query.search;
       const language = req.query.language;
-      // console.log(search, language);
+      //  (search, language);
 
       let query = {};
       if (language) query.language = language;
@@ -144,7 +144,7 @@ async function run() {
       if (req.trueUser?.email !== req.query?.email) {
         return res.status(403).send({ messeage: "forbidden" });
       }
-      console.log(email);
+       (email);
       
       const query = { email: email };
       const result = await tutorialsColloction.find(query).toArray();
@@ -199,5 +199,5 @@ app.get("/", (req, res) => {
   res.send("yahoo my server is working");
 });
 app.listen(port, () => {
-  console.log(`the port is running on ${port}`);
+   (`the port is running on ${port}`);
 });
