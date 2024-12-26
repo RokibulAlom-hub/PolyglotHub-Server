@@ -139,11 +139,13 @@ async function run() {
       res.send(result);
     });
     // getting tutorials by email
-    app.get("/myTutorials", async (req, res) => {
+    app.get("/myTutorials",verifyToken, async (req, res) => {
       const email = req.query.email;
-      // if (req.trueUser?.email !== req.query?.email) {
-      //   return res.status(403).send({ messeage: "forbidden" });
-      // }
+      if (req.trueUser?.email !== req.query?.email) {
+        return res.status(403).send({ messeage: "forbidden" });
+      }
+      console.log(email);
+      
       const query = { email: email };
       const result = await tutorialsColloction.find(query).toArray();
       res.send(result);
@@ -155,9 +157,16 @@ async function run() {
       res.send(result);
     });
     // get the bookinglist by id
-    app.get("/my-bookings", async (req, res) => {
+    app.get("/my-bookings",verifyToken, async (req, res) => {
       const email = req.query.email;
+      console.log(email);
+      
       const query = { loggedInEmail: email };
+      console.log(query);
+      
+      if (req.trueUser?.email !== req.query?.loggedInEmail) {
+        return res.status(403).send({ messeage: "forbidden" });
+      }
       const result = await bookedColloction.find(query).toArray();
       res.send(result);
     });
